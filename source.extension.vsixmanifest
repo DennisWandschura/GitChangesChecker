@@ -2,8 +2,8 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="VSIXProject1.6a737902-94b8-490d-be42-1e2251889e47" Version="1.0" Language="en-US" Publisher="Company" />
-        <DisplayName>GitCheck</DisplayName>
-        <Description xml:space="preserve">Empty VSIX Project.</Description>
+        <DisplayName>GitChangesChecker</DisplayName>
+        <Description xml:space="preserve">On Close checks if there are any changes in the local git repository and shows a dialog window.</Description>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">

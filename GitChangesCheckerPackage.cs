@@ -25,9 +25,9 @@ namespace GitChangesChecker
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(VSIXProject1Package.PackageGuidString)]
+    [Guid(GitChangesCheckerPackage.PackageGuidString)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
-    public sealed class VSIXProject1Package : AsyncPackage
+    public sealed class GitChangesCheckerPackage : AsyncPackage
     {
         /// <summary>
         /// VSIXProject1Package GUID string.
