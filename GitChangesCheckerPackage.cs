@@ -26,7 +26,8 @@ namespace GitChangesChecker
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(GitChangesCheckerPackage.PackageGuidString)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
+    //[ProvideService(typeof(GitChangesChecker), IsAsyncQueryable = true)]
+     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class GitChangesCheckerPackage : AsyncPackage
     {
         /// <summary>

@@ -36,7 +36,7 @@ namespace GitChangesChecker
             private set;
         }
 
-        public static async Task InitializeAsync(AsyncPackage package)
+        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package)
         {
             // Switch to the main thread - the call to AddCommand in FirstCommand's constructor requires
             // the UI thread.
@@ -50,13 +50,14 @@ namespace GitChangesChecker
 
         private void OnQueryCloseSolutionEventHandler([In][Out] ref bool fCancel)
         {
+            // https://learn.microsoft.com/en-us/visualstudio/extensibility/managing-project-loading-in-a-solution?view=vs-2022
             ThreadHelper.ThrowIfNotOnUIThread();
 
             var solutionDirectory = System.IO.Path.GetDirectoryName(_dte.Solution.FullName);
             string message = string.Format(CultureInfo.CurrentCulture, "Uncommitted git changes, do you want to commit before closing?");
             string title = "Uncommitted git changes!";
 
-            var repoPath = Path.Combine(solutionDirectory, "\\.git");
+            var repoPath = Path.Combine(solutionDirectory, ".git");
             if (!Directory.Exists(repoPath))
                 return;
 
