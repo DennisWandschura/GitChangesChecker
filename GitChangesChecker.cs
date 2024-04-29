@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GitChangesChecker
 {
@@ -54,49 +55,95 @@ namespace GitChangesChecker
             ThreadHelper.ThrowIfNotOnUIThread();
 
             var solutionDirectory = System.IO.Path.GetDirectoryName(_dte.Solution.FullName);
-            string message = string.Format(CultureInfo.CurrentCulture, "Uncommitted git changes, do you want to commit before closing?");
-            string title = "Uncommitted git changes!";
+           
 
             var repoPath = Path.Combine(solutionDirectory, ".git");
             if (!Directory.Exists(repoPath))
                 return;
 
-            if (HasGitRepoChanges(repoPath))
+            var checkResult = CheckGitRepo(repoPath);
+            ShowMessageBox(checkResult, ref fCancel);
+        }
+
+        private void ShowMessageBox(RepoCheckResult result, [In][Out] ref bool fCancel)
+        {
+            switch (result)
             {
-                var returnValue = VsShellUtilities.ShowMessageBox(
-                 _package,
-                 message,
-                 title,
-                 OLEMSGICON.OLEMSGICON_INFO,
-                 OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
-                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                switch (returnValue)
-                {
-                    case IDOK:
-                        fCancel = true;
-                        break;
-                    case IDCANCEL:
-                        fCancel = false;
-                        break;
-                    case IDYES:
-                        fCancel = true;
-                        break;
-                    case IDNO:
-                        fCancel = false;
-                        break;
-                    default:
-                        break;
-                }
+                case RepoCheckResult.NoChanges:
+                    break;
+                case RepoCheckResult.IsDirty:
+                    ShowMessageBox(MessageIsDirty, TitleIsDirty, ref fCancel);
+                    break;
+                case RepoCheckResult.UnpushedChanges:
+                    ShowMessageBox(MessageUnpushedChanges, TitleUnpushedChanges, ref fCancel);
+                    break;
             }
         }
 
-        bool HasGitRepoChanges(string repoPath)
+        private void ShowMessageBox(string message, string title, [In][Out] ref bool fCancel)
+        {
+            var returnValue = VsShellUtilities.ShowMessageBox(
+                _package,
+                message,
+                title,
+                OLEMSGICON.OLEMSGICON_INFO,
+                OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
+                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+            switch (returnValue)
+            {
+                case IDOK:
+                    fCancel = true;
+                    break;
+                case IDCANCEL:
+                    fCancel = false;
+                    break;
+                case IDYES:
+                    fCancel = true;
+                    break;
+                case IDNO:
+                    fCancel = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private static RepoCheckResult CheckGitRepo(string repoPath)
         {
             using (var repo = new Repository(repoPath))
             {
                 var status = repo.RetrieveStatus();
-                return status.IsDirty;
+                if(status.IsDirty)
+                {
+                    return RepoCheckResult.IsDirty;
+                }
+
+                if(HasGitBranchUnpushedChanges(repo.Head))
+                {
+                    return RepoCheckResult.UnpushedChanges;
+                }
+
+                return RepoCheckResult.NoChanges;
             }
         }
+
+        private static bool HasGitBranchUnpushedChanges(Branch branch)
+        {
+            return branch.TrackingDetails.AheadBy.Value > 0;
+        }
+
+        enum RepoCheckResult
+        {
+            NoChanges = 0,
+            IsDirty,
+            UnpushedChanges
+        }
+
+        private static string MessageIsDirty = string.Format(CultureInfo.CurrentCulture, "Uncommitted git changes, do you want to commit before closing?");
+        private const string TitleIsDirty = "Uncommitted git changes!";
+
+        private static string MessageUnpushedChanges = string.Format(CultureInfo.CurrentCulture, "Unpushed git commits, do you want to push before closing?");
+        private const string TitleUnpushedChanges = "Unpuished git commits!";
     }
 }
