@@ -61,7 +61,6 @@ namespace GitChangesChecker
             if (!Directory.Exists(repoPath))
                 return;
 
-           // repoPath = "D:\\VisualStudio\\Profitabilitaet\\.git";
             if (HasGitRepoChanges(repoPath))
             {
                 var returnValue = VsShellUtilities.ShowMessageBox(
